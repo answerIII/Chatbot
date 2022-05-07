@@ -50,7 +50,7 @@ class TelegaAPI:
     def echo(self, update, context):
         """Echo the user message."""
         answer = self.text_model.predict_answer([update.message.text])
-        update.message.reply_text(text=answer[0])
+        update.message.reply_text(text=''.join(answer[0]))
 
     def error(update, context):
         """Log Errors caused by Updates."""
