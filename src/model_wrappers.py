@@ -2,7 +2,6 @@ import numpy as np
 from tqdm import tqdm
 from os.path import exists
 from gensim.models import Word2Vec
-from sklearn.preprocessing import OneHotEncoder
 
 from data_preprocessor import DataPreprocessor
 
@@ -19,13 +18,14 @@ class Word2VecWrapper:
             print(f'W2V used pretrained')
             self.model = Word2Vec.load('../models/word2vec.model')
         else:
-            self.model = Word2Vec(sentences, vector_size=500, window=5, min_count=5, epochs=10)
+            print(f'train W2V')
+            self.model = Word2Vec(data, vector_size=500, window=5, min_count=5, epochs=10)
             self.model.save('../models/word2vec.model')
 
-    def transform(self, data):
+    def fit_transform(self, data):
         sentences = self.data_preparing(data)
         embedded_sentences = np.array([])
-        for sentence in tqdm(sentences):
+        for sentence in tqdm(data):
             vector = [self.model.wv[word] for word in sentence
                       if word in self.model.wv.key_to_index.keys()]
             vector = np.mean(vector, axis=0) if vector else np.zeros(500)
@@ -34,14 +34,3 @@ class Word2VecWrapper:
 
     def data_preparing(self, data):
         return [self.data_preprocessor.run_pipeline(sent) for sent in data]
-
-
-class OHEWrapper:
-    def __init__(self):
-        self.model = OneHotEncoder(handle_unknown='ignore')
-
-    def fit(self, data):
-        self.model.fit(data.values.reshape(-1, 1))
-
-    def transform(self, data):
-        return self.model.transform(data.values.reshape(-1, 1))

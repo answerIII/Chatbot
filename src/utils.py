@@ -1,7 +1,83 @@
 import os
 import re
+import json
 import pandas as pd
 import numpy as np
+
+import string
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
+
+def csv_reader(path):
+    df = pd.read_csv(path, sep='\t', on_bad_lines='skip')
+    return df
+
+
+def json_reader(path):
+    with open(path) as d:
+        data = json.load(d)
+    return data
+
+
+def clean_json(input_data):
+    data = {'intents': {}}
+    for intent_name, intent_data in input_data['intents'].items():
+        if intent_name not in ['Sber', 'thinkness_thick', 'thikness_thin', 'secret_word_detected', 'say_hello',
+                               'calc', 'intentionsss', 'exits', 'whatisintent', '300', 'deal', 'pasta or rise',
+                               'propadaesh', 'until', 'Pinkybrain', 'questions', 'bye_obscene', 'obscene']:
+
+            if intent_name == 'hamburger':
+                for k, v in intent_data.items():
+                    data['intents'][k] = v
+            elif intent_name == 'wheather talks':
+                data['intents'][intent_name] = {'examples': intent_data['talks'],
+                                                'responses': intent_data['responses']}
+            elif intent_name == 'recomend':
+                data['intents'][intent_name] = {'examples': intent_data['asks'],
+                                                'responses': intent_data['answers']}
+            elif intent_name == 'default_answer':
+                data['intents'][intent_name] = {'examples': [], 'responses': intent_data}
+            elif 'vacation' in intent_name:
+                if 'new_vacation' not in data['intents'].keys():
+                    data['intents']['new_vacation'] = {'examples': [], 'responses': []}
+                data['intents']['new_vacation']['examples'].extend(intent_data['examples'])
+                if intent_name == 'vacation':
+                    data['intents']['new_vacation']['responses'].extend(intent_data['respones'])
+                else:
+                    data['intents']['new_vacation']['responses'].extend(intent_data['responses'])
+            elif 'NL' in intent_name:
+                if 'NLP_NLU' not in data['intents'].keys():
+                    data['intents']['NLP_NLU'] = {'examples': [], 'responses': []}
+                data['intents']['NLP_NLU']['examples'].extend(intent_data['examples'])
+                data['intents']['NLP_NLU']['responses'].extend(intent_data['responses'])
+            elif 'song' in intent_name:
+                if 'new_song' not in data['intents'].keys():
+                    data['intents']['new_song'] = {'examples': [], 'responses': []}
+                data['intents']['new_song']['examples'].extend(intent_data['examples'])
+                data['intents']['new_song']['responses'].extend(intent_data['responses'])
+            else:
+                data['intents'][intent_name] = intent_data
+
+    with open('../data/data1.json', 'w') as fp:
+        json.dump(data, fp)
+
+    return data
+
+
+def preproces_text(text):
+    text = text.lower()
+    tokens = word_tokenize(text)
+    tokens = [i for i in tokens if i != '']
+    tokens = [i for i in tokens if (i not in string.punctuation)]
+    stop_words = stopwords.words('russian')
+    tokens = [i for i in tokens if (i not in stop_words)]
+    tokens = [i.replace("«", "").replace("»", "") for i in tokens]
+    return ' '.join(tokens)
+
+
+def csv_save(df, path):
+    df.to_csv(path, index=False, encoding='utf-8', sep='\t')
 
 
 def text_preproc(s):
@@ -11,15 +87,6 @@ def text_preproc(s):
         return s
     else:
         return r' '
-
-
-def csv_reader(path):
-    df = pd.read_csv(path, sep='\t', on_bad_lines='skip')
-    return df
-
-
-def csv_save(df, path):
-    df.to_csv(path, index=False, encoding='utf-8', sep='\t')
 
 
 def prepare_data(dir_path, filename):
@@ -62,3 +129,6 @@ if __name__ == '__main__':
     prepare_data(filepath, source_filename)
     # test_filename = 'good_test_dataset.tsv'
     # test_filename = 'good_test_dataset1.csv'
+
+# afsdf
+

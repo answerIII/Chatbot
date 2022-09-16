@@ -9,7 +9,8 @@ class DataPreprocessor:
         self.stop_words = stopwords.words('russian')
 
     def run_pipeline(self, corpus):
-        self.tokens = self.delete_signs(self.delete_stop_words(self.tokenize(corpus)))
+        # self.tokens = self.delete_signs(self.delete_stop_words(self.tokenize(corpus)))
+        self.tokens = self.tokenize(corpus)
         return self.tokens
 
     def tokenize(self, corpus):

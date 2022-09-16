@@ -17,7 +17,7 @@ class TelegaAPI:
         self.filepath = filepath
         self.filename = filename
 
-        self.text_model = TextModel(self.filepath, self.filename, vectorizer='BOW')
+        self.text_model = TextModel(filepath, filename, vectorizer_type='TFIDF', analyzer_fg=False)
 
     def main(self):
         updater = Updater(self.token, use_context=True)
@@ -49,8 +49,8 @@ class TelegaAPI:
 
     def echo(self, update, context):
         """Echo the user message."""
-        answer = self.text_model.predict_answer([update.message.text])
-        update.message.reply_text(text=''.join(answer[0]))
+        answer = self.text_model.get_response(update.message.text)
+        update.message.reply_text(text=answer)
 
     def error(update, context):
         """Log Errors caused by Updates."""
@@ -59,9 +59,10 @@ class TelegaAPI:
 
 if __name__ == '__main__':
 
-    token = 'token'
+    token = '5292432496:AAFD2FMKUp29CHIm6LFKChsNYP8e9Ioxn_g'
+
     filepath = f'../data'
-    filename = f'good_clean.tsv'
+    filename = f'data.json'
 
     api = TelegaAPI(token, filepath, filename)
     api.main()
