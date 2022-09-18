@@ -59,7 +59,7 @@ class TelegaAPI:
 
 if __name__ == '__main__':
 
-    token = '5292432496:AAFD2FMKUp29CHIm6LFKChsNYP8e9Ioxn_g'
+    token = ''
 
     filepath = f'../data'
     filename = f'data.json'
